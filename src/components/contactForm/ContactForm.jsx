@@ -4,13 +4,31 @@ import PropTypes from 'prop-types';
 import { Button, Form } from 'react-bootstrap';
 import BasicAlert from 'components/alert/Alert';
 
-// ...
+const CONTACT_KEY = 'contact';
+
 class ContactForm extends Component {
-    state = {
-      name: '',
-      number: '',
-      showAlert: false, // Adăugăm o stare pentru a controla afișarea alertei
-    };
+  state = {
+    name: '',
+    number: '',
+    showAlert: false,
+    list: [],
+  };
+
+  componentDidMount() {
+    const storedContacts = localStorage.getItem(CONTACT_KEY);
+
+    if (storedContacts) {
+      this.setState({
+        list: JSON.parse(storedContacts),
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState?.list.length !== this.state.list.length) {
+      localStorage.setItem(CONTACT_KEY, JSON.stringify(this.state.list));
+    }
+  }
   
     handleChange = (e) => {
       this.setState({ [e.target.name]: e.target.value });
@@ -31,6 +49,8 @@ class ContactForm extends Component {
         this.setState({ name: '', number: '', showAlert: false });
       }
     };
+
+
   
     handleAlertClose = () => {
       this.setState({ showAlert: false });
@@ -82,7 +102,7 @@ class ContactForm extends Component {
     e: PropTypes.object,
     name: PropTypes.string,
     number: PropTypes.string,
-    showAlert: PropTypes.string
+    showAlert: PropTypes.bool
   }
   
   export default ContactForm;

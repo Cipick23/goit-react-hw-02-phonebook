@@ -6,26 +6,52 @@ import Filter from './filter/Filter';
 import ContactList from './contactList/ContactList';
 import { Card } from 'react-bootstrap';
 
+const CONTACT_KEY = 'contacts';
 class App extends Component {
   state = {
     contacts: [],
     filter: '',
   };
 
+  componentDidMount() {
+    const storedContacts = localStorage.getItem(CONTACT_KEY);
+
+    if (storedContacts) {
+      this.setState({
+        contacts: JSON.parse(storedContacts),
+      });
+    }
+  }
+
   addContact = (contact) => {
     const newContact = { id: nanoid(), ...contact };
-    this.setState((prevState) => ({ contacts: [...prevState.contacts, newContact] }));
+    this.setState(
+      (prevState) => ({
+        contacts: [...prevState.contacts, newContact],
+      }),
+      () => {
+        this.updateLocalStorage();
+      }
+    );
+  };
+
+  onDeleteContact = (id) => {
+    const updatedContacts = this.state.contacts.filter((contact) => contact.id !== id);
+    this.setState(
+      { contacts: updatedContacts },
+      () => {
+        this.updateLocalStorage();
+      }
+    );
   };
 
   handleFilterChange = (e) => {
     this.setState({ filter: e.target.value });
   };
 
-  onDeleteContact = (id) => {
-    const updatedContacts = this.state.contacts.filter((contact) => contact.id !== id);
-    this.setState({ contacts: updatedContacts });
+  updateLocalStorage = () => {
+    localStorage.setItem(CONTACT_KEY, JSON.stringify(this.state.contacts));
   };
-  
 
   render() {
     return (
